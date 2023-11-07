@@ -22,7 +22,7 @@ class SSDDetection:
         return self.y + self.h
     def getH(self):
         return self.h
-    def getw(self):
+    def getW(self):
         return self.w
     def getKeypoints(self):
         return self.keypoints
@@ -38,8 +38,14 @@ class SSDDetection:
         self.confidence = confidence
     def setX(self,x):
         self.x = x
+
     def setY(self,y):
         self.y = y
+    def setX2(self,x2):
+        self.w = x2-self.x
+
+    def setY2(self,y2):
+        self.h = y2-self.y
     def setH(self,h):
         self.h = h
     def setW(self,w):

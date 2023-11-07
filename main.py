@@ -5,5 +5,5 @@ import tensorflow as tf
 
 if __name__ == "__main__":
     ie.version()
-    ip.initProcess(5000000,"models/palm_detection_full.tflite","models/anchors.csv")
+    ip.initProcess(5000000,"models/palm_detection_full.tflite","models/hand_landmark_full.tflite","models/anchors.csv")
 
