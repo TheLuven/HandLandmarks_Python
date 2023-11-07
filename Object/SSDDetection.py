@@ -3,13 +3,14 @@
 
 class SSDDetection:
 
-    def __init__(self,x = 0,y = 0,h = 0,w = 0,keypoints = None,confidence = 0):
+    def __init__(self,x = 0,y = 0,h = 0,w = 0,center = (0,0),keypoints = None,confidence = 0):
         self.x = x
         self.y = y
         self.h = h
         self.w = w
         self.keypoints = keypoints
         self.confidence = confidence
+        self.center = center
 
     def getX(self):
         return self.x
@@ -18,7 +19,7 @@ class SSDDetection:
     def getX2(self):
         return self.x + self.w
     def getY2(self):
-        return self.y + self.y
+        return self.y + self.h
     def getH(self):
         return self.h
     def getw(self):
@@ -27,6 +28,10 @@ class SSDDetection:
         return self.keypoints
     def setKeypoints(self,keypoints):
         self.keypoints = keypoints
+    def getCenter(self):
+        return self.center
+    def setCenter(self,center):
+        self.center = center
     def getConfidence(self):
         return self.confidence
     def setConfidence(self,confidence):

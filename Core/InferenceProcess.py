@@ -31,17 +31,10 @@ def launchProcess(frequency, core, cap,csv):
             data = core.getData(0)
             confidence = core.getData(1)
             boxes = decodeAnchors(data,confidence,csv)
-            box = onlyHighest(boxes,confidence)
+            box = onlyHighest(boxes,confidence,0.5)
+            if box != None:
+                drawBox(frame,box)
             frame = printFPS(processTime, frame)
-            top_left = (int(box.getX()*width), int(box.getY()*height))
-            bottom_right = (int(box.getX2()*width), int(box.getY2()*height))
-
-            # Define the color and thickness of the rectangle (in BGR format)
-            color = (0, 0, 255)  # Red color in BGR
-            thickness = 2
-
-            # Draw the rectangle on the image
-            cv2.rectangle(frame, top_left, bottom_right, color, thickness)
             cv2.imshow("Test", frame)
         else:
             print("Error: Couldn't capture an image from the camera.")
@@ -74,17 +67,36 @@ def decodeAnchors(data,confidence,csv_file):
         value = data[0][index]/192
         sx = row[0]
         sy = row[1]
-        h = row[2]
-        w = row[3]
+        w = row[2]
+        h = row[3]
         cx = sx + value[0]
         cy = sy + value[1]
         h = h * value[2]
         w = w * value[3]
         x = cx - w * 0.5
         y = cy - h * 0.5
-        list.append(sd.SSDDetection(x,y,h,w,confidence=sigmoid(confidence[0][index])))
+        keypoints = []
+        for i in range(7):
+            keypoints.append((cx+value[4+i*2],cy+value[4+i*2+1]))
+        list.append(sd.SSDDetection(x,y,h,w,center=(cx,cy),keypoints=keypoints,confidence=sigmoid(confidence[0][index])))
     return list
 
+def drawBox(frame,box):
+    height, width, _ = frame.shape
+    top_left = (int(box.getX() * width), int(box.getY() * height))
+    bottom_right = (int(box.getX2() * width), int(box.getY2() * height))
+
+    # Define the color and thickness of the rectangle (in BGR format)
+    color = (0, 0, 255)  # Red color in BGR
+    thickness = 2
+
+    # Draw the rectangle on the image
+    cv2.rectangle(frame, top_left, bottom_right, color, thickness)
+    cv2.circle(frame, (int(box.getCenter()[0] * width), int(box.getCenter()[1] * height)), 3, (0, 255, 0), 10)
+    #cv2.circle(frame, top_left, 3, (0, 255, 0), 10)
+    #cv2.circle(frame, bottom_right, 3, (0, 255, 0), 10)
+    for keypoint in box.getKeypoints():
+        cv2.circle(frame, (int(keypoint[0] * width), int(keypoint[1] * height)), 3, (255, 0, 0), 10)
 
 def csvReader(csv_file):
     matrix = []
@@ -102,8 +114,10 @@ def csvReader(csv_file):
 
     return matrix
 
-def onlyHighest(boxes,confidence):
+def onlyHighest(boxes,confidence,tresh):
     index_of_max = np.argmax(confidence[0])
+    if(confidence[0][index_of_max]<tresh):
+        return None
     return boxes[index_of_max]
 
 def sigmoid(x):
